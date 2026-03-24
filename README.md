@@ -2,6 +2,10 @@
 
 Monorepo aplikacji do zarządzania obecnością klientów w social media: integracja z Meta (Facebook / Instagram), kampanie Marketing API, moderacja treści i komentarzy oraz globalny filtr spamu.
 
+## Podgląd
+
+![Panel Social Management](screenshot.webp)
+
 ## Stack technologiczny
 
 | Warstwa               | Technologie                                                                                        |
