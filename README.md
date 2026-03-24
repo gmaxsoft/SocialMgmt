@@ -53,6 +53,27 @@ Projekt używa **npm workspaces**: instalacja z katalogu głównego (`npm instal
 
    (Odpowiednik: `cd server && npx prisma generate && npx prisma migrate dev`.)
 
+6. Utwórz **konto demo administratora** w bazie (skrypt Prisma Seed):
+
+   ```bash
+   npm run db:seed
+   ```
+
+   Logowanie do panelu — patrz [Konto demo](#konto-demo-lokalne).
+
+## Konto demo (lokalne)
+
+Po `npm run db:seed` w tabeli `panel_users` istnieje (lub jest nadpisywane) konto **ADMINISTRATOR** z domyślnymi danymi:
+
+| Pole       | Wartość                 |
+| ---------- | ----------------------- |
+| **E-mail** | `demo@socialmgmt.local` |
+| **Hasło**  | `Demo_SocialMgmt_2026!` |
+
+Możesz je zmienić w `server/.env` przed seedem: `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD`.
+
+Skrypt znajduje się w **`server/prisma/seed.ts`**. W środowisku produkcyjnym **nie** używaj tych domyślnych haseł — ustaw własne konto lub zmień hasło zaraz po wdrożeniu.
+
 ## Uruchomienie (development)
 
 Z **katalogu głównego** — frontend i backend równolegle:
@@ -147,11 +168,31 @@ Workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml): **Node.js 22** 
 
 ## Przydatne skrypty (workspace `server`)
 
-| Skrypt (z root)                 | Opis                 |
-| ------------------------------- | -------------------- |
-| `npm run db:generate -w server` | `prisma generate`    |
-| `npm run db:migrate -w server`  | `prisma migrate dev` |
-| `npm run db:push -w server`     | `prisma db push`     |
+| Skrypt (z root)                 | Opis                                        |
+| ------------------------------- | ------------------------------------------- |
+| `npm run db:generate -w server` | `prisma generate`                           |
+| `npm run db:migrate -w server`  | `prisma migrate dev`                        |
+| `npm run db:push -w server`     | `prisma db push`                            |
+| `npm run db:studio -w server`   | `prisma studio` (GUI)                       |
+| `npm run db:seed -w server`     | `prisma db seed` — konto demo (patrz wyżej) |
+
+## Prisma (ORM i podgląd bazy)
+
+[Prisma](https://www.prisma.io/) mapuje modele z pliku **`server/prisma/schema.prisma`** na tabele w **MySQL**. Wygenerowany klient (`@prisma/client`) jest używany w kodzie API; po każdej zmianie schematu uruchom migrację (lub `db:push` na dev) oraz ponownie **`npm run db:generate`**, żeby typy i klient były zsynchronizowane z bazą.
+
+**Prisma Studio** to wbudowane w CLI **graficzne narzędzie** do przeglądania i edycji rekordów (filtrowanie, podgląd relacji) bez pisania zapytań SQL. Domyślnie otwiera się w przeglądarce pod adresem **`http://localhost:5555`** (port można zmienić flagą `--port`).
+
+Uruchomienie z katalogu głównego repozytorium (wymaga poprawnego **`DATABASE_URL`** w `server/.env` i działającej bazy):
+
+```bash
+npm run db:studio
+```
+
+Równoważnie: `npm run db:studio -w server` albo `cd server && npx prisma studio`.
+
+**Uwagi:** Studio jest przeznaczone głównie do **środowiska lokalnego / developerskiego**. Nie wystawiaj go publicznie w produkcji bez zabezpieczeń (VPN, tunel z autoryzacją itd.) — daje pełny dostęp do danych zgodnie z uprawnieniami użytkownika bazy z `DATABASE_URL`.
+
+**Seed bazy:** `npm run db:seed` uruchamia `prisma db seed` i zapisuje konto demo administratora (szczegóły w sekcji [Konto demo](#konto-demo-lokalne)).
 
 ## Bezpieczeństwo
 

@@ -10,6 +10,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
     "test": "jest --config jest.config.cjs",
     "test:unit": "jest --config jest.config.cjs --testPathIgnorePatterns=integration",
     "test:integration": "jest --config jest.config.cjs --testPathPatterns=integration"
@@ -41,5 +43,8 @@
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }
