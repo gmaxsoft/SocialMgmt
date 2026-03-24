@@ -17,6 +17,7 @@ Struktura katalogów:
 
 - `client/` — aplikacja SPA (Vite)
 - `server/` — API REST + Prisma (`prisma/schema.prisma`)
+- **`.env.example`** (katalog główny) i **`server/.env.example`** — szablony zmiennych; skopiuj do **`.env`** / **`server/.env`** (te pliki są w `.gitignore`).
 
 Projekt używa **npm workspaces**: instalacja z katalogu głównego (`npm install`) tworzy **jeden** `package-lock.json` i umieszcza prawie wszystkie pakiety w **`node_modules` w korzeniu repozytorium**. W podfolderach `client/` lub `server/` mogą dodatkowo pojawić się niewielkie katalogi `node_modules` (np. linki binarek lub pakiety z inną wersją) — to typowe zachowanie npm i nie wymaga osobnego `npm install` w tych folderach.
 
@@ -36,7 +37,11 @@ Projekt używa **npm workspaces**: instalacja z katalogu głównego (`npm instal
    npm install
    ```
 
-3. Uruchom bazę MySQL (np. Docker):
+3. Przygotuj **hasło MySQL** dla Dockera i skopiuj szablony:
+   - W katalogu głównym: skopiuj **`.env.example`** → **`.env`** i ustaw **`MYSQL_ROOT_PASSWORD`** (silne hasło; nie wrzucaj go do repozytorium).
+   - W **`server/`**: skopiuj **`server/.env.example`** → **`server/.env`** i w **`DATABASE_URL`** użyj **tego samego hasła** co w `MYSQL_ROOT_PASSWORD` oraz portu **3307** (patrz niżej).
+
+4. Uruchom bazę MySQL w Dockerze:
 
    ```bash
    docker compose up -d
@@ -44,16 +49,9 @@ Projekt używa **npm workspaces**: instalacja z katalogu głównego (`npm instal
 
    W `docker-compose.yml` MySQL z kontenera jest wystawione na hoście pod **`localhost:3307`** (mapowanie `3307:3306`), żeby **nie zajmować portu 3306** — na Windowsie często działa już osobna instalacja MySQL / XAMPP / inny Docker i wtedy pojawia się błąd `bind: ... 3306 ... Only one usage`.
 
-4. Skonfiguruj **`server/.env`**. Minimalnie:
-   - **`DATABASE_URL`** — połączenie z bazą z kroku 3, np. (hasło i port jak w `docker-compose.yml`):
+5. Dokończ **`server/.env`** (wzoruj się na **`server/.env.example`**): **`JWT_SECRET`**, opcjonalnie **`TOKEN_ENCRYPTION_KEY`** (szyfrowanie tokenów Meta w DB — patrz [Bezpieczeństwo](#bezpieczeństwo)), **`CLIENT_URL`**, dane aplikacji Meta (`FACEBOOK_*`) jeśli używasz OAuth.
 
-     ```env
-     DATABASE_URL="mysql://root:YPNNVb2p.p@localhost:3307/socialmgmt"
-     ```
-
-   - **`JWT_SECRET`**, opcjonalnie **`TOKEN_ENCRYPTION_KEY`** (szyfrowanie tokenów Meta w DB — patrz [Bezpieczeństwo](#bezpieczeństwo)), **`CLIENT_URL`**, dane aplikacji Meta (`FACEBOOK_*`) jeśli używasz OAuth.
-
-5. Wygeneruj klienta Prisma i zastosuj migracje:
+6. Wygeneruj klienta Prisma i zastosuj migracje:
 
    ```bash
    npm run db:generate
@@ -62,7 +60,7 @@ Projekt używa **npm workspaces**: instalacja z katalogu głównego (`npm instal
 
    (Odpowiednik: `cd server && npx prisma generate && npx prisma migrate dev`.)
 
-6. Utwórz **konto demo administratora** w bazie (skrypt Prisma Seed):
+7. Utwórz **konto demo administratora** w bazie (skrypt Prisma Seed):
 
    ```bash
    npm run db:seed

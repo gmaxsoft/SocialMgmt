@@ -6,7 +6,8 @@ services:
     container_name: socialmgmt-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: YPNNVb2p.p
+      # Wartość z pliku `.env` w katalogu głównym (skopiuj z `.env.example`). Nie commituj prawdziwego hasła.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: socialmgmt
     ports:
       - "3307:3306"
