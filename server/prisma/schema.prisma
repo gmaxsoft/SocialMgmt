@@ -1,0 +1,74 @@
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  industry  String?
+  status    String
+
+  socialAccounts SocialAccount[]
+  adAccounts     AdAccount[]
+
+  @@map("clients")
+}
+
+enum PanelRole {
+  ADMINISTRATOR
+  MARKETING
+}
+
+model PanelUser {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         PanelRole
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("panel_users")
+}
+
+model SocialAccount {
+  id             Int       @id @default(autoincrement())
+  clientId       Int       @map("client_id")
+  platform       String
+  platformId     String    @map("platform_id")
+  accessToken    String?   @map("access_token") @db.Text
+  refreshToken   String?   @map("refresh_token") @db.Text
+  tokenExpiresAt DateTime? @map("token_expires_at")
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, platform, platformId])
+  @@map("social_accounts")
+}
+
+model AdAccount {
+  id          Int    @id @default(autoincrement())
+  clientId    Int    @map("client_id")
+  adAccountId String @map("ad_account_id")
+  status      String
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("ad_accounts")
+}
+
+model BannedWord {
+  id        Int      @id @default(autoincrement())
+  word      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([word])
+  @@map("banned_words")
+}
