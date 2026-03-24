@@ -175,13 +175,14 @@ Workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml): **Node.js 22** 
 
 ## Przydatne skrypty (workspace `server`)
 
-| Skrypt (z root)                 | Opis                                        |
-| ------------------------------- | ------------------------------------------- |
-| `npm run db:generate -w server` | `prisma generate`                           |
-| `npm run db:migrate -w server`  | `prisma migrate dev`                        |
-| `npm run db:push -w server`     | `prisma db push`                            |
-| `npm run db:studio -w server`   | `prisma studio` (GUI)                       |
-| `npm run db:seed -w server`     | `prisma db seed` — konto demo (patrz wyżej) |
+| Skrypt (z root)                       | Opis                                                               |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| `npm run db:generate -w server`       | `prisma generate`                                                  |
+| `npm run db:generate:clean -w server` | usuwa `node_modules/.prisma` + `prisma generate` (Windows / EPERM) |
+| `npm run db:migrate -w server`        | `prisma migrate dev`                                               |
+| `npm run db:push -w server`           | `prisma db push`                                                   |
+| `npm run db:studio -w server`         | `prisma studio` (GUI)                                              |
+| `npm run db:seed -w server`           | `prisma db seed` — konto demo (patrz wyżej)                        |
 
 ## Prisma (ORM i podgląd bazy)
 
@@ -222,10 +223,30 @@ Równoważnie: `npm run db:studio -w server` albo `cd server && npx prisma studi
 
 - Token panelu jest przechowywany w **localStorage** (`sm_token`). Utrzymuj aktualne zależności i unikaj XSS (np. nie wstrzykuj nieufnego HTML do DOM).
 
-## Rozwiązywanie problemów: Docker i MySQL
+## Rozwiązywanie problemów
+
+### Docker i MySQL
 
 - **`ports are not available` / `bind` na porcie 3306** — na hoście działa już inna usługa na **3306** (np. systemowy MySQL, XAMPP, MariaDB). W repozytorium Docker mapuje kontener na **`localhost:3307`** (`3307:3306` w `docker-compose.yml`). Ustaw w `DATABASE_URL` port **3307** i zrestartuj kontener po `git pull`: `docker compose down` → `docker compose up -d`.
 - Jeśli **wolisz port 3306** i masz pewność, że nic na nim nie nasłuchuje, możesz w lokalnym `docker-compose.yml` (nie commituj, jeśli to tylko u Ciebie) przywrócić `"3306:3306"`.
+
+### Prisma na Windows (`EPERM` / `rename` / `query_engine-windows.dll.node`)
+
+Ten błąd przy `npm run db:generate` zwykle oznacza, że **inny proces trzyma zablokowany** plik silnika Prisma (`.dll`), więc nie da się go nadpisać.
+
+1. **Zatrzymaj** wszystko, co może ładować Prisma: `npm run dev`, `npm run dev:server`, **Prisma Studio**, testy, inne terminale z Node w tym projekcie.
+2. W **Menedżerze zadań** zamknij zbędne procesy **Node.js** (ostrożnie — nie zamykaj innych aplikacji, których potrzebujesz).
+3. Uruchom ponownie generowanie z **czyszczeniem** wygenerowanego katalogu:
+
+   ```bash
+   npm run db:generate:clean
+   ```
+
+   (Usuwa `server/node_modules/.prisma` i ponownie uruchamia `prisma generate`.) Jeśli **nawet usuwanie folderu** kończy się `EPERM`, blokada nadal jest aktywna — wróć do punktu 1–2 albo zamknij edytor i otwórz nowy terminal.
+
+4. Jeśli nadal jest `EPERM`: **Windows Defender / antywirus** — dodaj wyjątek dla folderu projektu lub tymczasowo wyłącz skanowanie na czas `db:generate`. Unikaj też synchronizacji projektu przez **OneDrive** w tle (lepiej katalog poza folderem „OneDrive”).
+
+5. Ostatnia deska ratunku: zamknij **Cursor/VS Code**, otwórz **PowerShell jako administrator** w katalogu projektu i wykonaj `npm run db:generate:clean`.
 
 ## Uwagi
 
