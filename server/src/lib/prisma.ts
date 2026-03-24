@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { decryptTokenAtRest, encryptTokenAtRest } from "./tokenCrypto";
 
 function encryptSocialAccountWriteData(data: Record<string, unknown>) {
@@ -15,20 +15,44 @@ const base = new PrismaClient();
 export const prisma = base.$extends({
   query: {
     socialAccount: {
-      async create({ args, query }) {
+      async create({
+        args,
+        query,
+      }: {
+        args: Prisma.SocialAccountCreateArgs;
+        query: (a: Prisma.SocialAccountCreateArgs) => Promise<unknown>;
+      }) {
         encryptSocialAccountWriteData(args.data as Record<string, unknown>);
         return query(args);
       },
-      async update({ args, query }) {
+      async update({
+        args,
+        query,
+      }: {
+        args: Prisma.SocialAccountUpdateArgs;
+        query: (a: Prisma.SocialAccountUpdateArgs) => Promise<unknown>;
+      }) {
         encryptSocialAccountWriteData(args.data as Record<string, unknown>);
         return query(args);
       },
-      async upsert({ args, query }) {
+      async upsert({
+        args,
+        query,
+      }: {
+        args: Prisma.SocialAccountUpsertArgs;
+        query: (a: Prisma.SocialAccountUpsertArgs) => Promise<unknown>;
+      }) {
         encryptSocialAccountWriteData(args.create as Record<string, unknown>);
         encryptSocialAccountWriteData(args.update as Record<string, unknown>);
         return query(args);
       },
-      async updateMany({ args, query }) {
+      async updateMany({
+        args,
+        query,
+      }: {
+        args: Prisma.SocialAccountUpdateManyArgs;
+        query: (a: Prisma.SocialAccountUpdateManyArgs) => Promise<unknown>;
+      }) {
         if (args.data) encryptSocialAccountWriteData(args.data as Record<string, unknown>);
         return query(args);
       },
@@ -38,13 +62,13 @@ export const prisma = base.$extends({
     socialAccount: {
       accessToken: {
         needs: { accessToken: true },
-        compute(s) {
+        compute(s: { accessToken: string | null }) {
           return decryptTokenAtRest(s.accessToken) ?? null;
         },
       },
       refreshToken: {
         needs: { refreshToken: true },
-        compute(s) {
+        compute(s: { refreshToken: string | null }) {
           return decryptTokenAtRest(s.refreshToken) ?? null;
         },
       },
