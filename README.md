@@ -49,7 +49,7 @@ Projekt używa **npm workspaces**: instalacja z katalogu głównego (`npm instal
 
    W `docker-compose.yml` MySQL z kontenera jest wystawione na hoście pod **`localhost:3307`** (mapowanie `3307:3306`), żeby **nie zajmować portu 3306** — na Windowsie często działa już osobna instalacja MySQL / XAMPP / inny Docker i wtedy pojawia się błąd `bind: ... 3306 ... Only one usage`.
 
-5. Dokończ **`server/.env`** (wzoruj się na **`server/.env.example`**): **`JWT_SECRET`**, opcjonalnie **`TOKEN_ENCRYPTION_KEY`** (szyfrowanie tokenów Meta w DB — patrz [Bezpieczeństwo](#bezpieczeństwo)), **`CLIENT_URL`**, dane aplikacji Meta (`FACEBOOK_*`) jeśli używasz OAuth.
+5. Dokończ **`server/.env`** (wzoruj się na **`server/.env.example`**): **`JWT_SECRET`**, opcjonalnie **`TOKEN_ENCRYPTION_KEY`** (szyfrowanie tokenów Meta w DB — patrz [Bezpieczeństwo](#bezpieczeństwo)), **`CLIENT_URL`**, dane aplikacji Meta (`FACEBOOK_*`) jeśli używasz OAuth. W szablonie są też **`DEMO_ADMIN_EMAIL`** i **`DEMO_ADMIN_PASSWORD`** (konto z `npm run db:seed`) — możesz je zostawić albo zmienić przed seedem.
 
 6. Wygeneruj klienta Prisma i zastosuj migracje:
 
@@ -77,7 +77,7 @@ Po `npm run db:seed` w tabeli `panel_users` istnieje (lub jest nadpisywane) kont
 | **E-mail** | `demo@socialmgmt.local` |
 | **Hasło**  | `Demo_SocialMgmt_2026!` |
 
-Możesz je zmienić w `server/.env` przed seedem: `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD`.
+Zmienne **`DEMO_ADMIN_EMAIL`** i **`DEMO_ADMIN_PASSWORD`** są wpisane w **`server/.env.example`** — po skopiowaniu do `server/.env` masz je od razu w pliku; możesz je zmienić przed pierwszym `npm run db:seed`. Jeśli ich nie ma w `.env`, seed i tak użyje domyślnych wartości z README (te same co w szablonie).
 
 Skrypt znajduje się w **`server/prisma/seed.ts`**. W środowisku produkcyjnym **nie** używaj tych domyślnych haseł — ustaw własne konto lub zmień hasło zaraz po wdrożeniu.
 
