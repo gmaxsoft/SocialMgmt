@@ -1,12 +1,12 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { decryptTokenAtRest, encryptTokenAtRest } from "./tokenCrypto";
+import { SocialAccountService } from "../services/socialAccountService";
 
 function encryptSocialAccountWriteData(data: Record<string, unknown>) {
   if (typeof data.accessToken === "string") {
-    data.accessToken = encryptTokenAtRest(data.accessToken) as string;
+    data.accessToken = SocialAccountService.encryptTokenForStorage(data.accessToken) as string;
   }
   if (typeof data.refreshToken === "string") {
-    data.refreshToken = encryptTokenAtRest(data.refreshToken) as string;
+    data.refreshToken = SocialAccountService.encryptTokenForStorage(data.refreshToken) as string;
   }
 }
 
@@ -63,13 +63,13 @@ export const prisma = base.$extends({
       accessToken: {
         needs: { accessToken: true },
         compute(s: { accessToken: string | null }) {
-          return decryptTokenAtRest(s.accessToken) ?? null;
+          return SocialAccountService.decryptTokenFromStorage(s.accessToken) ?? null;
         },
       },
       refreshToken: {
         needs: { refreshToken: true },
         compute(s: { refreshToken: string | null }) {
-          return decryptTokenAtRest(s.refreshToken) ?? null;
+          return SocialAccountService.decryptTokenFromStorage(s.refreshToken) ?? null;
         },
       },
     },

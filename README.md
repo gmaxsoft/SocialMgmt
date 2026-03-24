@@ -218,7 +218,7 @@ Równoważnie: `npm run db:studio -w server` albo `cd server && npx prisma studi
 ### Zmienne środowiskowe i sekrety
 
 - **`server/.env`** nie powinien trafiać do repozytorium (jest w `.gitignore`). W produkcji ustaw m.in. `DATABASE_URL`, **`JWT_SECRET`** (min. długi, losowy), **`TOKEN_ENCRYPTION_KEY`** (preferowane 64 znaki hex = 32 bajty klucza AES) oraz dane Meta (`FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `FACEBOOK_REDIRECT_URI` itd.).
-- **`TOKEN_ENCRYPTION_KEY`**: szyfrowanie tokenów Meta (`access_token` / `refresh_token` w tabeli `social_accounts`) algorytmem **AES-256-GCM** przed zapisem w MySQL. Wartość w DB ma prefiks `smenc:v1:`; stare wpisy w plaintext nadal są obsługiwane przy odczycie.
+- **`TOKEN_ENCRYPTION_KEY`**: szyfrowanie tokenów Meta (`access_token` / `refresh_token` w tabeli `social_accounts`) modułem **`node:crypto`** (AES-256-GCM) w **`SocialAccountService`** (`server/src/services/socialAccountService.ts`) przed zapisem i po odczycie z MySQL (integracja przez rozszerzenie Prisma w `server/src/lib/prisma.ts`). Wartość w DB ma prefiks `smenc:v1:`; stare wpisy w plaintext nadal są obsługiwane przy odczycie.
 - Jeśli `TOKEN_ENCRYPTION_KEY` nie jest ustawiony, klucz szyfrowania jest **pochodzony z `JWT_SECRET`** (wygodniejsze na dev, w produkcji lepiej osobny klucz).
 - Frontend nie powinien zawierać sekretów aplikacji Meta ani kluczy API — konfiguracja zostaje po stronie serwera lub zmiennych buildu (`VITE_*` tylko tam, gdzie celowo wystawiasz nie-sekretowe identyfikatory).
 
